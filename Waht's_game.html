@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventure dans l'Espace</title>
+    <style>
+        /* Ajouter des styles pour la page */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        
+        /* Ajouter des styles pour le jeu */
+        #game-container {
+            width: 800px;
+            height: 600px;
+            margin: 40px auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    
+    <!-- Importer les bibliothèques nécessaires -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.50.1/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.2.2/dist/pixi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+    
+    <!-- Code du jeu -->
+    <script>
+        // Création du jeu
+        const game = new Phaser.Game({
+            type: Phaser.CANVAS,
+            width: 800,
+            height: 600,
+            parent: 'game-container',
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        });
+        
+        // Fonction de préchargement des ressources
+        function preload() {
+            // Chargement des images
+            this.load.image('space', 'assets/space.png');
+            this.load.image('player', 'assets/player.png');
+            this.load.image('obstacle', 'assets/obstacle.png');
+            
+            // Chargement des sons
+            this.load.audio('music', 'assets/music.mp3');
+            this.load.audio('shoot', 'assets/shoot.mp3');
+        }
+        
+        // Fonction de création du jeu
+        function create() {
+            // Création du fond d'écran
+            this.add.image(400, 300, 'space');
+            
+            // Création du joueur
+            this.player = this.add.sprite(100, 100, 'player');
+            this.player.setCollideWorldBounds(true);
+            
+            // Création des obstacles
+            this.obstacles = this.add.group();
+            for (let i = 0; i < 10; i++) {
+                const obstacle = this.add.sprite(Math.random() * 800, Math.random() * 600, 'obstacle');
+                this.obstacles.add(obstacle);
+            }
+            
+            // Création des projectiles
+            this.projectiles = this.add.group();
+            
+            // Ajout des événements
+            this.input.keyboard.on('keydown-SPACE', () => {
+                this.shoot();
+            });
+            
+            this.input.keyboard.on('keydown-LEFT', () => {
+                this.player.x -= 10;
+            });
+            
+            this.input.keyboard.on('keydown-RIGHT', () => {
+                this.player.x += 10;
+            });
+            
+            this.input.keyboard.on('keydown-UP', () => {
+                this.player.y -= 10;
+            });
+            
+            this.input.keyboard.on('keydown-DOWN', () => {
+                this.player.y += 10;
+            });
+        }
+        
+        // Fonction de mise à jour du jeu
+        function update() {
+            // Mise à jour des obstacles
+            this.obstacles.children.each((obstacle) => {
+                obstacle.x += Math.random() * 2 - 1;
+                obstacle.y += Math.random() * 2 - 1;
+            });
+            
+            // Mise à jour des projectiles
+            this.projectiles.children.each((projectile) => {
+                projectile.x += 10;
+                if (projectile.x > 800) {
+                    projectile.destroy();
+                }
+            });
+        }
+        
+        // Fonction de tir
+        function shoot() {
+            const projectile = this.add.sprite(this.player.x, this.player.y, 'projectile');
+            this.projectiles.add(projectile);
+            this.sound.play('shoot');
+        }
+    </script>
+</body>
+</html>
